@@ -1,0 +1,49 @@
+services:
+  # Service สำหรับ Qdrant Vector Database
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant_db
+    ports:
+      # Map port 6333 ของ Host ไปยัง port 6333 ของ Container (สำหรับ HTTP API)
+      - "6333:6333"
+      # Map port 6334 ของ Host ไปยัง port 6334 ของ Container (สำหรับ gRPC API)
+      - "6334:6334"
+    volumes:
+      # สร้าง persistent volume ชื่อ qdrant_storage เพื่อเก็บข้อมูล vectors
+      # ข้อมูลจะไม่หายไป即使 container ถูกลบหรือ restart
+      - qdrant_storage:/qdrant/storage
+    restart: unless-stopped
+
+  # Service สำหรับ Neo4j Graph Database
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j_db
+    ports:
+      # Map port 7474 ของ Host ไปยัง port 7474 ของ Container (สำหรับเข้าใช้งานผ่าน Web Browser)
+      - "7474:7474"
+      # Map port 7687 ของ Host ไปยัง port 7687 ของ Container (สำหรับเชื่อมต่อจาก Driver เช่น Python)
+      - "7687:7687"
+    volumes:
+      # สร้าง persistent volumes สำหรับเก็บข้อมูลต่างๆ ของ Neo4j
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - neo4j_import:/var/lib/neo4j/import
+      - neo4j_plugins:/plugins
+    environment:
+      # กำหนด Username และ Password สำหรับการเข้าใช้งานครั้งแรก
+      # หากไม่กำหนด จะต้องตั้งค่าในครั้งแรกเอง
+      - NEO4J_AUTH=neo4j/password
+      # ติดตั้ง Plugin APOC ที่มีประโยชน์สำหรับการประมวลผลข้อมูลกราฟขั้นสูง
+      - NEO4J_PLUGINS=["apoc"]
+      # ยอมรับข้อตกลงการใช้งานสำหรับ Plugin โดยอัตโนมัติ
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+    restart: unless-stopped
+
+# ประกาศว่าจะใช้ Volumes ชื่ออะไรบ้าง
+# Docker จะทำการสร้างและจัดการ volumes เหล่านี้ให้
+volumes:
+  qdrant_storage:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_import:
+  neo4j_plugins:
