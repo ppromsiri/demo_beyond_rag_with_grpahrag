@@ -212,6 +212,7 @@ if __name__ == "__main__":
             # --- ทดสอบการค้นหาด้วย Query ใหม่ที่ทรงพลังขึ้น ---
             
             # Query 1: หาสินเชื่อที่ดอกเบี้ยคงที่
+            print("Query 1: หาสินเชื่อที่ดอกเบี้ยคงที่")
             query1 = """
             MATCH (l:LoanProject)-[:HAS_INTEREST_RATE]->(ir:InterestRate {type: 'คงที่'})
             RETURN l.name AS ProjectName, ir.value AS InterestRate
@@ -219,14 +220,15 @@ if __name__ == "__main__":
             query_neo4j(query1)
 
             # Query 2: หาสินเชื่อที่ดอกเบี้ยลอยตัว (MRR)
+            print("Query 2: หาสินเชื่อที่ดอกเบี้ยลอยตัว (MRR)")
             query2 = """
             MATCH (l:LoanProject)-[:HAS_INTEREST_RATE]->(ir:InterestRate {type: 'ลอยตัว'})
             RETURN l.name AS ProjectName, ir.value AS InterestRate
             """
             query_neo4j(query2)
 
-            # Query 3: คำถามเดิมที่เคยผิด! "โครงการไหนที่ต้องการค้ำประกันโดยคนในอำเภอเดียวกัน และดอกเบี้ยคงที่"
-            # ตอนนี้ Query สวยงามและใช้ได้จริง!
+            # Query 3:  "โครงการไหนที่ต้องการค้ำประกันโดยคนในอำเภอเดียวกัน และดอกเบี้ยคงที่"
+            print("Query 3: โครงการไหนที่ต้องการค้ำประกันโดยคนในอำเภอเดียวกัน และดอกเบี้ยคงที่")
             query3 = """
             MATCH (l:LoanProject)-[:HAS_INTEREST_RATE]->(ir:InterestRate {type: 'คงที่'})
             WHERE l.same_district_guarantor = true
@@ -235,6 +237,7 @@ if __name__ == "__main__":
             query_neo4j(query3)
 
             # Query 4: หาสินเชื่อสำหรับครูที่ไม่ต้องใช้ที่ดินเป็นหลักประกัน
+            print("Query 4: หาสินเชื่อสำหรับครูที่ไม่ต้องใช้ที่ดินเป็นหลักประกัน")
             query4 = """
             MATCH (p:LoanProject)-[:IS_FOR]->(a:Profession {name: 'บุคลากรทางการศึกษา'})
             WHERE NOT EXISTS((p)-[:REQUIRES_COLLATERAL]->(:Collateral {description: 'ที่ดินแปลงที่ซื้อ'}))
@@ -242,6 +245,7 @@ if __name__ == "__main__":
             """
             query_neo4j(query4)
             # Query 5: หาสินเชื่อที่มีวงเงินไม่เกิน 1,000,000 บาท
+            print("Query 5: หาสินเชื่อที่มีวงเงินไม่เกิน 1,000,000 บาท")
             query5 = """
             MATCH (l:LoanProject)-[:HAS_LIMIT]->(ll:LoanLimit)
             WHERE toFloat(ll.value) <= 1000000
